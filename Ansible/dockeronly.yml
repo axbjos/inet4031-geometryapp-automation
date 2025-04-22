@@ -1,0 +1,36 @@
+# Exceedingly simple and rather 'imperative' Playbook for installing Docker on a Server
+# Only Docker!!!
+# Use this Playbook to install Docker on a Server created using one of the Terraform Examples
+# Mimics the manual install of Docker using the command line
+# After this, should have a server capable of running the Flask App Docker Container
+---
+# Ansible Hosts File must have a label named dockerservers
+# Or change this to whatever desired
+#
+- hosts: dockerservers
+  become: true
+
+  tasks:
+    - name: Install aptitude using apt
+      apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+    - name: Install required system packages
+      apt: name={{ item }} state=latest update_cache=yes
+      loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt: update_cache=yes name=docker-ce state=latest
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker

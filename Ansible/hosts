@@ -1,0 +1,10 @@
+#update as needed for your Environment
+#pretty sure your servers aren't 10.43.  (unless they are)
+[webservers]
+10.43.50.9
+
+[flaskservers]
+10.43.50.10
+
+[dockerservers]
+10.43.50.11

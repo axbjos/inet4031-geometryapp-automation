@@ -1,0 +1,65 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# RENAME this file to simply Vagrantfile and put it into some directory...somewhere
+# Obviously Vagrant and a Hypervisor it can control should be installed
+# If the above sentence makes no sense to you, go learn about Vagrant and Virtualization
+#
+# This Vagrantfile clones from the base Ubuntu Vagrant Template VM (aka "Box")
+# Then runs the commands to install Docker Engine
+# Please alter the networking as needed.
+
+Vagrant.configure("2") do |config|
+  # This will work on most x86 systems using Virtualbox
+  # It will not work on ARM64 (Apple Silicon) machines using VMware Fusion
+  config.vm.box = "ubuntu/focal64"
+
+
+  # Configure Port Forwarding as needed.  For example:
+  # Expose port 5000 from the VM to the Host. Flask uses tcp 5000 by default
+  #config.vm.network "forwarded_port", guest: 5000, host: 5000
+
+  # Specify a host only network if you want.
+  # config.vm.network "private_network", ip: "192.168.56.10"
+
+  # Bridge the VM is you want
+  # config.vm.network "public_network"
+
+  # Alter VM's setting to increase RAM if needed
+  # config.vm.provider "virtualbox" do |vb|
+  #   # Display the VirtualBox GUI when booting the machine
+  #   vb.gui = true
+  #
+  #   # Customize the amount of memory on the VM:
+  #   vb.memory = "1024"
+  # end
+  #
+
+  # Use the Vagrant provisioner to install Docker in the VM
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo apt-get update
+
+    #should already be installed, but double check
+    sudo apt-get install -y ca-certificates curl gnupg lsb-release
+
+    #add Docker package repo to the server
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    #after Docker repo added to apt, update it.
+    sudo apt-get update
+
+    #docker stuff
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+    # login to VM double check this.  May need to run manually
+    sudo usermod -aG docker vagrant
+
+    #Uncomment to have this ran as part to install (to verify Docker works)
+    #or run it manually
+    #docker run hello-world
+
+  SHELL
+end

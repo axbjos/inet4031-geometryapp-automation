@@ -1,0 +1,45 @@
+# Just like the other Docker Playbook, only here, Ansible
+# Also pulls and runs an example Flask App Container from 
+# Axnet Labs, LLC's Docker Hub.
+# Build you're own container and replace the appropriate text below.
+---
+- hosts: dockerservers
+  become: true
+
+  tasks:
+    - name: Install aptitude using apt
+      apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+    - name: Install required system packages
+      apt: name={{ item }} state=latest update_cache=yes
+      loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Package Repo
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt: update_cache=yes name=docker-ce state=latest
+
+    - name: Install Docker Module for Python - so Ansible can control Docker on the target
+      pip:
+        name: docker
+
+    #use this as an example, but then build and pull your own container
+    - name: Pull the Axnet Labs Flask App from Docker Hub
+      docker_image:
+        name: zrxmoto/geometrywebdocker
+        source: pull
+
+    #run the container, make sure to port forward port 5000
+    - name: Run an Example Flask App Container
+      docker_container:
+        name: geometrywebdocker2
+        image: zrxmoto/geometrywebdocker
+        ports: "5000:5000"

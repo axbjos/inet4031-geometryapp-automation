@@ -1,0 +1,35 @@
+---
+- hosts: flaskservers
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: install pip
+      apt: update_cache=yes name=python3-pip state=latest
+
+    - name: install flask
+      pip: name=flask==2.0.1
+
+    - name: install click
+      pip: name=click==8.0.1
+
+    - name: install itsdangerous
+      pip: name=itsdangerous==2.0.1
+
+    - name: install Jinja2
+      pip: name=Jinja2==3.0.1
+
+    - name: install MarkupSafe
+      pip: name=MarkupSafe==2.0.1
+
+    - name: install Werkzeug
+      pip: name=Werkzeug==2.0.1
+
+    - name: fetch code from github
+      git: repo=https://github.com/axbjos/geometry_website.git dest=/opt/geometry_website
+
+    #this is a bad way to do this, and it won't work anyway.
+    - name: make sure app is running
+      ansible.builtin.shell: python3 GeometryCalcWeb.py >>
+      args:
+              chdir: /opt/geometry_website
