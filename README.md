@@ -1,2 +1,3 @@
-# inet4031-geometryapp-automation
+# INET 4031 Geometry App Automation
+
 Automation Options for the Geometry App
